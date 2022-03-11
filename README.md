@@ -1,42 +1,33 @@
-# Advanced Sample Hardhat Project
+# Upgraddable Smart Contract
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+This project demonstrates how to make the upgraddable smart contract.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+## What is the upgraddable smart contract?
 
-Try running some of the following tasks:
+Smart contracts deployed using OpenZeppelin Upgrades Plugins can be upgraded to modify their code, while preserving their address, state, and balance. This allows you to iteratively add new features to your project, or fix any bugs you may find in production.
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+## How upgrades work
 
-# Etherscan verification
+This section will be more theory-heavy than others: feel free to skip over it and return later if you are curious.
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+When you create a new upgradeable contract instance, the OpenZeppelin Upgrades Plugins actually deploys three contracts:
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+The contract you have written, which is known as the implementation contract containing the logic.
 
-```shell
-hardhat run --network ropsten scripts/deploy.js
-```
+A ProxyAdmin to be the admin of the proxy.
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+A proxy to the implementation contract, which is the contract that you actually interact with.
 
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
+Here, the proxy is a simple contract that just delegates all calls to an implementation contract. A delegate call is similar to a regular call, except that all code is executed in the context of the caller, not of the callee. Because of this, a transfer in the implementation contract’s code will actually transfer the proxy’s balance, and any reads or writes to the contract storage will read or write from the proxy’s own storage.
+
+This allows us to decouple a contract’s state and code: the proxy holds the state, while the implementation contract provides the code. And it also allows us to change the code by just having the proxy delegate to a different implementation contract.
+
+An upgrade then involves the following steps:
+
+Deploy the new implementation contract.
+
+Send a transaction to the proxy that updates its implementation address to the new one.
+
+## references
+
+https://docs.openzeppelin.com/learn/upgrading-smart-contracts?pref=hardhat
