@@ -14,12 +14,12 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Box = await ethers.getContractFactory("Box");
-  console.log("Deploing Box...")
-  const box = await upgrades.deployProxy(Box, [42], {initializer: 'store'});
-  await box.deployed();
+  const BoxUpgrade = await ethers.getContractFactory("BoxUpgrade");
+  console.log("Upgradding BoxUpgrade...")
+  const boxUpgrade = await upgrades.upgradeProxy('address of deployed Box', BoxUpgrade);
+  await boxUpgrade.deployed();
 
-  console.log("Box deployed to:", box.address);
+  console.log("Box deployed to:", boxUpgrade.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
