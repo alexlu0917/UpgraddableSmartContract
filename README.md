@@ -28,6 +28,14 @@ Deploy the new implementation contract.
 
 Send a transaction to the proxy that updates its implementation address to the new one.
 
+## limitations
+
+Upgradeable contracts cannot have a constructor. To help you run initialization code, OpenZeppelin Contracts provides the Initializable base contract that allows you to tag a method as initializer, ensuring it can be run only once.
+
+If you have already declared a state variable in your contract, you cannot remove it, change its type, or declare another variable before it. In our Box example, it means that we can only add new state variables after value.
+
+Fortunately, this limitation only affects state variables. You can change the contract’s functions and events as you wish.
+
 ## references
 
 https://docs.openzeppelin.com/learn/upgrading-smart-contracts?pref=hardhat
